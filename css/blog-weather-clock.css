@@ -109,7 +109,11 @@
   line-height: 1;
   letter-spacing: -0.035em;
   text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.09);
+  /* 上沿高光 + 下沿硬阴影 + 柔和投影，形成轻微浮雕而不牺牲数字清晰度。 */
+  text-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.58),
+    0 1px 0 rgba(0, 0, 0, 0.18),
+    0 3px 5px rgba(0, 0, 0, 0.18);
   white-space: nowrap;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: "tnum" 1, "lnum" 1;
@@ -202,7 +206,10 @@
 
 @media (prefers-color-scheme: dark) {
   .weather-clock-card__time {
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+    text-shadow:
+      0 -1px 0 rgba(255, 255, 255, 0.12),
+      0 1px 0 rgba(0, 0, 0, 0.48),
+      0 3px 6px rgba(0, 0, 0, 0.42);
   }
 }
 
