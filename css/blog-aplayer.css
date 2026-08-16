@@ -1,0 +1,135 @@
+/**
+ * 博客音乐播放器视觉增强
+ * 仅覆盖站点播放器，不修改 Redefine 原始样式文件。
+ */
+
+/* 修复主题原选择器缺少 : 导致音量滑杆无法在悬停时展开的问题。 */
+.aplayer .aplayer-info .aplayer-controller
+.aplayer-volume-wrap:hover .aplayer-volume-bar-wrap {
+  height: 40px;
+}
+
+/* 恢复封面按钮的悬停反馈。 */
+.aplayer .aplayer-pic:hover .aplayer-button {
+  opacity: 1;
+}
+
+/* 收起态：播放器主体变成 66px 的圆形唱片。 */
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+  width: 66px !important;
+  height: 66px;
+  padding-right: 0 !important;
+  overflow: visible;
+  border-radius: 50%;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none;
+}
+
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic {
+  box-sizing: border-box;
+  width: 66px;
+  height: 66px;
+  border: 0 !important;
+  border-radius: 50%;
+  box-shadow: var(--redefine-box-shadow);
+  animation: blog-aplayer-cover-spin 12s linear infinite;
+  animation-play-state: paused;
+}
+
+/* 按钮反向旋转，抵消父级封面旋转，使图标始终保持正向。 */
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-button {
+  animation: blog-aplayer-control-counter-spin 12s linear infinite reverse;
+  animation-play-state: paused;
+}
+
+/* 播放与暂停按钮使用相同尺寸，并固定在唱片正中心。 */
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-play,
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-pause {
+  width: 28px;
+  height: 28px;
+  right: 50%;
+  bottom: 50%;
+  margin: 0 -16px -16px 0;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.48);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+}
+
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-play svg,
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-pause svg {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 5px;
+  left: 5px;
+}
+
+/* 播放三角形视觉重心略偏右，单独补偿 1px。 */
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-play svg {
+  left: 6px;
+}
+
+/* 只有真实播放时才启动封面与按钮的配对动画。 */
+.aplayer.aplayer-fixed.aplayer-narrow.aplayer-is-playing .aplayer-pic,
+.aplayer.aplayer-fixed.aplayer-narrow.aplayer-is-playing
+.aplayer-pic .aplayer-button {
+  animation-play-state: running;
+}
+
+/* 保留展开入口，并将它弱化成唱片右侧的小标签。 */
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-miniswitcher {
+  top: 20px;
+  right: -4px;
+  bottom: auto;
+  width: 18px;
+  height: 26px;
+  border: 0;
+  border-radius: 0 13px 13px 0;
+  background: var(--background-color-transparent-80);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* 展开面板与博客卡片使用同一透明度；边框完全透明，避免出现白色外框。 */
+.aplayer.aplayer-fixed .aplayer-body {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.aplayer.aplayer-fixed .aplayer-info,
+.aplayer.aplayer-fixed .aplayer-list {
+  background: var(--background-color-transparent-80) !important;
+  border: 0 !important;
+  box-shadow: var(--redefine-box-shadow);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.aplayer.aplayer-fixed.aplayer-withlist .aplayer-info {
+  border-bottom: 0 !important;
+}
+
+.aplayer.aplayer-fixed.aplayer-narrow
+.aplayer-miniswitcher .aplayer-icon {
+  transform: rotateY(0);
+}
+
+@keyframes blog-aplayer-cover-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes blog-aplayer-control-counter-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 尊重系统“减少动态效果”设置，避免持续旋转造成不适。 */
+@media (prefers-reduced-motion: reduce) {
+  .aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic,
+  .aplayer.aplayer-fixed.aplayer-narrow .aplayer-pic .aplayer-button {
+    animation: none;
+  }
+}

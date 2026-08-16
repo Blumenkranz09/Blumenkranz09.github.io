@@ -1,0 +1,214 @@
+/**
+ * 首页天气时钟卡片。
+ * 颜色、阴影和玻璃模糊均使用 Redefine 主题变量，自动适配明暗主题。
+ */
+.weather-clock-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+  width: 100%;
+  height: 146px;
+  min-height: 0;
+  margin-top: 23px;
+  padding: 16px 18px 15px;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--first-text-color);
+  background-color: var(--background-color-transparent-80) !important;
+  border-radius: 18px;
+  box-shadow: var(--redefine-box-shadow);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  font-variant-numeric: tabular-nums;
+}
+
+.weather-clock-card:hover {
+  box-shadow: var(--redefine-box-shadow-hover);
+}
+
+/* 顶部日期/天气与底部风向/城市共用网格基础。 */
+.weather-clock-card__top,
+.weather-clock-card__bottom {
+  display: grid;
+  align-items: center;
+  color: var(--second-text-color);
+}
+
+.weather-clock-card__top {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+.weather-clock-card__date {
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+.weather-clock-card__weekday {
+  margin-left: 2px;
+  font-size: 0.92em;
+  font-weight: 450;
+  opacity: 0.72;
+}
+
+.weather-clock-card__weather {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  min-width: 0;
+  padding: 3px 7px;
+  white-space: nowrap;
+  background: var(--second-background-color);
+  border: 1px solid rgba(127, 127, 127, 0.08);
+  border-radius: 9px;
+}
+
+.weather-clock-card__weather i {
+  width: 16px;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.weather-clock-card__weather .fa-sun {
+  color: #e3a82b;
+}
+
+.weather-clock-card__weather .fa-cloud-rain,
+.weather-clock-card__weather .fa-cloud-showers-heavy {
+  color: #5598bd;
+}
+
+.weather-clock-card__weather .fa-snowflake {
+  color: #70b6d1;
+}
+
+.weather-clock-card__weather .fa-cloud-bolt {
+  color: #9475b8;
+}
+
+.weather-clock-card__condition {
+  max-width: 3.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 等宽数字避免秒钟变化时产生水平抖动。 */
+.weather-clock-card__time {
+  align-self: center;
+  margin: 0;
+  color: var(--first-text-color);
+  font-family: "Geist Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 2.2rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.09);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.weather-clock-card__time-seconds {
+  font-weight: 450;
+  opacity: 0.84;
+}
+
+.weather-clock-card__bottom {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  min-height: 24px;
+  font-size: 0.74rem;
+}
+
+.weather-clock-card__wind,
+.weather-clock-card__city {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-clock-card__wind {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+}
+
+.weather-clock-card__wind i {
+  margin-right: 5px;
+  color: var(--primary-color);
+  transform: rotate(var(--wind-arrow-rotation, 0deg));
+}
+
+.weather-clock-card__city {
+  justify-self: center;
+  max-width: 7em;
+  padding: 3px 7px;
+  color: var(--second-text-color);
+  background: var(--second-background-color);
+  border: 1px solid rgba(127, 127, 127, 0.08);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.weather-clock-card__city::before {
+  content: "⌖";
+  margin-right: 4px;
+  color: var(--primary-color);
+  font-size: 0.95em;
+}
+
+.weather-clock-card__city:hover,
+.weather-clock-card__city:focus-visible {
+  color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.weather-clock-card__period {
+  display: none;
+}
+
+.weather-clock-card [data-clock-temperature] {
+  position: absolute;
+  right: 18px;
+  bottom: 17px;
+  color: var(--first-text-color);
+  font-family: "Geist Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* 定位和天气请求期间保留布局，仅弱化尚未确认的数据。 */
+.weather-clock-card[data-loading="true"] .weather-clock-card__weather,
+.weather-clock-card[data-loading="true"] .weather-clock-card__city,
+.weather-clock-card[data-loading="true"] [data-clock-temperature] {
+  opacity: 0.56;
+}
+
+.weather-clock-card__weather,
+.weather-clock-card__city,
+.weather-clock-card [data-clock-temperature] {
+  transition: opacity 0.24s ease, color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .weather-clock-card__time {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-clock-card,
+  .weather-clock-card__city {
+    transition: none;
+  }
+}

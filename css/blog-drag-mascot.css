@@ -1,0 +1,320 @@
+/**
+ * 纸片看板娘：主元素负责拖拽/回弹，内层负责待机动画，绳和底座独立渲染。
+ * 分层可避免多个动画同时覆盖 transform。
+ */
+.drag-mascot-rig {
+  --paper-tension: 0;
+  --paper-thinning: 0px;
+  --paper-shadow-lift: 0px;
+  --paper-shadow-blur: 0px;
+  --paper-fold-opacity: 0.32;
+  --paper-tilt: 0deg;
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+/* 随拖拽距离改变厚度、阴影和折痕强度的纸质绳带。 */
+.drag-mascot-tether {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  height: calc(11px - var(--paper-thinning));
+  border: 1px solid rgba(130, 87, 48, 0.42);
+  border-radius: 2px 5px 5px 2px;
+  background: linear-gradient(180deg, rgba(255, 249, 220, 0.96) 0 22%, rgba(225, 187, 121, 0.98) 23% 68%, rgba(169, 116, 70, 0.94) 69% 100%);
+  box-shadow: 0 2px 2px rgba(74, 47, 28, 0.22), 0 calc(3px + var(--paper-shadow-lift)) calc(5px + var(--paper-shadow-blur)) rgba(48, 31, 20, 0.18);
+  transform-origin: 0 50%;
+  will-change: width, transform;
+  pointer-events: none;
+}
+
+.drag-mascot-tether::before,
+.drag-mascot-tether::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.drag-mascot-tether::before {
+  inset: 1px 0 auto;
+  height: 2px;
+  background: rgba(255, 255, 244, 0.55);
+}
+
+.drag-mascot-tether::after {
+  inset: 0;
+  opacity: var(--paper-fold-opacity);
+  background: repeating-linear-gradient(72deg, transparent 0 24px, rgba(112, 70, 40, 0.28) 25px, rgba(255, 250, 229, 0.3) 26px, transparent 27px 48px);
+}
+
+/* 固定在视口右下角的牛皮纸底座。 */
+.drag-mascot-anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 72px;
+  height: 28px;
+  border: 1px solid rgba(124, 81, 46, 0.38);
+  border-radius: 5px 5px 11px 11px;
+  background: linear-gradient(135deg, transparent 0 11%, rgba(255, 244, 202, 0.5) 11.5% 13%, transparent 13.5%), linear-gradient(90deg, #c89152 0 16%, #e7bd78 17% 49%, #cf9858 50% 72%, #ad7443 73% 100%);
+  box-shadow: inset 0 2px rgba(255, 246, 214, 0.6), inset 0 -4px rgba(126, 76, 39, 0.14), 0 5px 12px rgba(39, 27, 19, 0.24);
+  clip-path: polygon(5% 0, 95% 0, 100% 25%, 94% 100%, 8% 100%, 0 72%, 3% 18%);
+  transform: translate(-50%, -50%) rotate(var(--paper-tilt));
+  transform-origin: 50% 65%;
+  pointer-events: none;
+}
+
+.drag-mascot-anchor::before,
+.drag-mascot-anchor::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.drag-mascot-anchor::before {
+  z-index: 1;
+  top: 4px;
+  left: 8px;
+  right: 8px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(79, 47, 28, 0.82), rgba(151, 99, 55, 0.58));
+  box-shadow: 0 1px rgba(255, 238, 194, 0.42);
+}
+
+.drag-mascot-anchor::after {
+  z-index: 2;
+  top: 8px;
+  left: 19px;
+  width: 35px;
+  height: 17px;
+  border: 1px solid rgba(150, 77, 79, 0.25);
+  background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(152, 72, 76, 0.12) 8px), rgba(238, 157, 160, 0.9);
+  box-shadow: inset 0 1px rgba(255, 224, 220, 0.72), 0 1px 2px rgba(86, 43, 38, 0.16);
+  transform: rotate(-3deg);
+}
+
+/* 交互主体的位移由 JavaScript 内联 transform 统一控制。 */
+.drag-mascot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 168px;
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  outline: none;
+  will-change: transform;
+  transform-origin: 50% 82%;
+  pointer-events: auto;
+}
+
+.drag-mascot.is-dragging {
+  cursor: grabbing;
+}
+
+.drag-mascot__idle,
+.drag-mascot__sprite {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 82%;
+  pointer-events: none;
+}
+
+.drag-mascot__idle {
+  transition: none;
+}
+
+.drag-mascot.is-active .drag-mascot__idle,
+.drag-mascot.is-active .drag-mascot__sprite {
+  animation: none;
+  translate: 0;
+  transform: none;
+}
+
+.drag-mascot::before {
+  content: "";
+  position: absolute;
+  left: 31%;
+  right: 24%;
+  bottom: 7%;
+  z-index: 0;
+  height: 8%;
+  border-radius: 50%;
+  background: rgba(82, 55, 35, 0.2);
+  filter: blur(5px);
+  opacity: 0.18;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.drag-mascot:hover::before {
+  opacity: 0.32;
+}
+
+.drag-mascot-rig.is-breathing .drag-mascot-tether {
+  animation: drag-mascot-paper-breathe 1.45s ease-in-out both;
+}
+
+.drag-mascot-rig.is-wiggling .drag-mascot-anchor::after {
+  animation: drag-mascot-tape-pulse 0.58s ease-in-out both;
+}
+
+.drag-mascot.is-flipping .drag-mascot__idle {
+  animation: drag-mascot-card-flip 1.28s cubic-bezier(0.42, 0, 0.2, 1) both;
+}
+
+.drag-mascot.is-active.is-limit-shaking .drag-mascot__idle {
+  animation: drag-mascot-limit-shake 0.36s ease-out both;
+}
+
+.drag-mascot:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 2px solid var(--primary-color);
+  border-radius: 22px;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.drag-mascot__image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  pointer-events: none;
+  clip-path: inset(3% 0 0 0);
+  -webkit-user-drag: none;
+}
+
+.drag-mascot__image--open {
+  z-index: 1;
+  opacity: 1;
+}
+
+/* 闭眼素材只裁出眼部区域，避免整张图片切换造成黑闪或清晰度变化。 */
+.drag-mascot__image--blink {
+  z-index: 2;
+  opacity: 0;
+  clip-path: inset(35% 36% 51% 33% round 3px);
+  transition: none;
+}
+
+.drag-mascot__sprite.is-blinking .drag-mascot__image--blink {
+  opacity: 1;
+}
+
+
+@keyframes drag-mascot-paper-breathe {
+  0%, 100% {
+    opacity: 0.88;
+  }
+  48% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.94;
+  }
+}
+
+@keyframes drag-mascot-tape-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: inset 0 1px rgba(255, 224, 220, 0.72), 0 1px 2px rgba(86, 43, 38, 0.16);
+  }
+  45% {
+    opacity: 0.78;
+    box-shadow: inset 0 1px rgba(255, 238, 232, 0.82), 0 2px 4px rgba(86, 43, 38, 0.22);
+  }
+}
+
+/* 先翻到背面短暂停留，再快速返回正面。 */
+@keyframes drag-mascot-card-flip {
+  0%, 100% {
+    transform: perspective(520px) rotateY(0deg);
+  }
+  38%, 72% {
+    transform: perspective(520px) rotateY(180deg);
+  }
+}
+
+@keyframes drag-mascot-limit-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  18% { transform: translateX(-4px) rotate(-1.4deg); }
+  36% { transform: translateX(4px) rotate(1.4deg); }
+  54% { transform: translateX(-3px) rotate(-1deg); }
+  72% { transform: translateX(3px) rotate(0.8deg); }
+  88% { transform: translateX(-1px) rotate(-0.35deg); }
+}
+
+@media (max-width: 768px) {
+  .drag-mascot {
+    width: 112px;
+  }
+
+  .drag-mascot-anchor {
+    width: 58px;
+    height: 23px;
+  }
+
+  .drag-mascot-tether {
+    height: calc(8px - var(--paper-thinning));
+  }
+
+  .drag-mascot-anchor::after {
+    top: 7px;
+    left: 15px;
+    width: 29px;
+    height: 13px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .drag-mascot-anchor {
+    border-color: rgba(224, 176, 115, 0.28);
+    background: linear-gradient(135deg, transparent 0 11%, rgba(235, 203, 154, 0.25) 11.5% 13%, transparent 13.5%), linear-gradient(90deg, #805333 0 16%, #a87343 17% 49%, #8d5b37 50% 72%, #684028 73% 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drag-mascot,
+  .drag-mascot-tether {
+    will-change: auto;
+  }
+
+  .drag-mascot__idle,
+  .drag-mascot__sprite,
+  .drag-mascot__image--open,
+  .drag-mascot__image--blink {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    translate: 0 !important;
+  }
+
+  .drag-mascot.is-flipping .drag-mascot__idle,
+  .drag-mascot.is-active.is-limit-shaking .drag-mascot__idle {
+    animation: none !important;
+  }
+}
+
+@media print {
+  .drag-mascot-rig {
+    display: none !important;
+  }
+}

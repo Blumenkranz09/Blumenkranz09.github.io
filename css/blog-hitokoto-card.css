@@ -1,0 +1,251 @@
+/**
+ * 首页今日签卡片。
+ * 玻璃卡片保持主题一致，暖色高光与纸片看板娘形成轻微视觉关联。
+ */
+.hitokoto-card {
+  position: relative;
+  width: 100%;
+  min-height: 112px;
+  margin-top: 23px;
+  padding: 14px 17px 13px;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--first-text-color);
+  background: linear-gradient(120deg, rgba(255, 222, 158, 0.09), transparent 44%), var(--background-color-transparent-80) !important;
+  border-radius: 18px;
+  box-shadow: var(--redefine-box-shadow);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* 装饰层不参与交互，避免影响复制按钮的点击区域。 */
+.hitokoto-card::before {
+  content: "“";
+  position: absolute;
+  top: 27px;
+  left: 9px;
+  color: var(--first-text-color);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.055;
+  pointer-events: none;
+}
+
+.hitokoto-card::after {
+  content: "";
+  position: absolute;
+  top: 41px;
+  bottom: 16px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, rgba(225, 174, 91, 0.1), rgba(225, 174, 91, 0.42), rgba(225, 174, 91, 0.08));
+  pointer-events: none;
+}
+
+.hitokoto-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hitokoto-card:hover {
+  box-shadow: var(--redefine-box-shadow-hover);
+}
+
+.hitokoto-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+}
+
+.hitokoto-card__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--second-text-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.hitokoto-card__title i {
+  color: #c69348;
+  font-size: 0.72rem;
+}
+
+.hitokoto-card__actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 分类由一言 API 的 type 字段映射生成。 */
+.hitokoto-card__category {
+  padding: 2px 7px;
+  color: var(--second-text-color);
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid rgba(127, 127, 127, 0.07);
+  border-radius: 999px;
+  font-size: 0.61rem;
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.hitokoto-card__feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 0;
+  overflow: hidden;
+  color: var(--second-text-color);
+  font-size: 0.62rem;
+  line-height: 1;
+  opacity: 0;
+  white-space: nowrap;
+  transform: translateX(4px);
+  transition: max-width 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.hitokoto-card__feedback.is-visible {
+  max-width: 4.8em;
+  opacity: 0.9;
+  transform: translateX(0);
+}
+
+.hitokoto-card__refresh {
+  display: inline-grid;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  place-items: center;
+  color: var(--second-text-color);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.25s ease;
+}
+
+.hitokoto-card__refresh:hover,
+.hitokoto-card__refresh:focus-visible {
+  color: var(--primary-color);
+  background: rgba(127, 127, 127, 0.09);
+  transform: rotate(35deg);
+}
+
+.hitokoto-card__refresh:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline: 2px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.hitokoto-card__quote {
+  display: block;
+  width: 100%;
+  min-height: 36px;
+  margin: 9px 0 5px;
+  padding: 0 2px;
+  overflow: hidden;
+  color: var(--first-text-color);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: copy;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+}
+
+.hitokoto-card__quote span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.hitokoto-card__quote:hover {
+  color: color-mix(in srgb, var(--first-text-color) 82%, #b98743);
+}
+
+.hitokoto-card__quote:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline: 2px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+  outline-offset: 3px;
+}
+
+.hitokoto-card__source {
+  overflow: hidden;
+  color: var(--second-text-color);
+  font-size: 0.67rem;
+  line-height: 1.3;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.82;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* 换签只移动文字层，卡片本身保持稳定。 */
+.hitokoto-card.is-changing .hitokoto-card__quote,
+.hitokoto-card.is-changing .hitokoto-card__source {
+  opacity: 0;
+  transform: translateY(3px);
+}
+
+.hitokoto-card[data-loading="true"] .hitokoto-card__quote,
+.hitokoto-card[data-loading="true"] .hitokoto-card__source {
+  opacity: 0.52;
+}
+
+.hitokoto-card.is-changing[data-loading="true"] .hitokoto-card__quote,
+.hitokoto-card.is-changing[data-loading="true"] .hitokoto-card__source {
+  opacity: 0;
+}
+
+.hitokoto-card[data-loading="true"] .hitokoto-card__refresh i {
+  animation: hitokoto-card-loading 0.8s linear infinite;
+}
+
+.hitokoto-card[data-queued="true"] .hitokoto-card__refresh {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 12%, transparent);
+}
+
+.hitokoto-card[data-fallback="true"] .hitokoto-card__title i {
+  opacity: 0.65;
+}
+
+@keyframes hitokoto-card-loading {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hitokoto-card,
+  .hitokoto-card__refresh,
+  .hitokoto-card__quote,
+  .hitokoto-card__source,
+  .hitokoto-card__feedback {
+    transition: none;
+  }
+
+  .hitokoto-card[data-loading="true"] .hitokoto-card__refresh i {
+    animation: none;
+  }
+}
+
+@media print {
+  .hitokoto-card {
+    display: none !important;
+  }
+}

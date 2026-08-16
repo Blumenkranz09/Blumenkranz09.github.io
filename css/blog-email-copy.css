@@ -1,0 +1,51 @@
+/** 首页邮箱复制反馈；固定文字栅格，避免模糊的位移动画。 */
+.social-contact-item.email-copy-enabled {
+  position: relative;
+}
+
+.social-contact-item.email-copy-enabled > a {
+  cursor: copy;
+}
+
+/* 反馈只淡入淡出，不使用 transform，保证小字号始终清晰。 */
+.email-copy-feedback {
+  position: absolute;
+  right: -10px;
+  bottom: calc(100% + 13px);
+  z-index: 20;
+  width: max-content;
+  max-width: 180px;
+  padding: 7px 11px;
+  color: var(--first-text-color);
+  background: var(--background-color-transparent-80);
+  border-radius: 9px;
+  box-shadow: var(--redefine-box-shadow-flat);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.email-copy-feedback::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 15px;
+  border: 5px solid transparent;
+  border-top-color: var(--background-color-transparent-80);
+}
+
+.email-copy-feedback.is-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .email-copy-feedback {
+    transition: none;
+  }
+}
