@@ -1,6 +1,6 @@
 /**
  * 首页本地时间与天气卡片。
- * 定位按天缓存、天气按半小时缓存；接口失败时逐级回退到 IP 和默认城市。
+ * 定位按天缓存、天气短时缓存；接口失败时逐级回退到 IP 和默认城市。
  */
 (function () {
   "use strict";
@@ -13,7 +13,7 @@
       timezone: "Asia/Shanghai"
     },
     locationCacheMs: 24 * 60 * 60 * 1000,
-    weatherCacheMs: 30 * 60 * 1000,
+    weatherCacheMs: 12 * 60 * 1000,
     geolocationTimeoutMs: 8000,
     requestTimeoutMs: 8000
   };
@@ -155,7 +155,7 @@
     const params = new URLSearchParams({
       latitude: String(location.latitude),
       longitude: String(location.longitude),
-      current: "temperature_2m,weather_code,wind_direction_10m,is_day",
+      current: "temperature_2m,weather_code,wind_direction_10m,is_day,precipitation,rain,showers,cloud_cover",
       timezone: "auto"
     });
     const data = await requestJson(`https://api.open-meteo.com/v1/forecast?${params}`);
@@ -166,6 +166,10 @@
       weatherCode: Number(current.weather_code),
       windDirection: Number(current.wind_direction_10m),
       isDay: Number(current.is_day) !== 0,
+      precipitation: Number(current.precipitation),
+      rain: Number(current.rain),
+      showers: Number(current.showers),
+      cloudCover: Number(current.cloud_cover),
       latitude: location.latitude,
       longitude: location.longitude,
       fetchedAt: Date.now(),
@@ -173,7 +177,21 @@
     };
   }
 
-  function weatherDescription(code, isDay) {
+  function weatherDescription(weather) {
+    const { weatherCode: code, isDay } = weather;
+    const precipitationValues = [weather.precipitation, weather.rain, weather.showers]
+      .filter(Number.isFinite);
+    const precipitation = precipitationValues.length ? Math.max(...precipitationValues) : null;
+
+    // 模型偶尔会给出“毛毛雨”代码但降水量为零；此时以云量作为更符合日常认知的描述。
+    if ([51, 53, 55, 56, 57].includes(code) && precipitation !== null && precipitation < 0.1) {
+      const overcast = Number.isFinite(weather.cloudCover) && weather.cloudCover >= 85;
+      return {
+        label: overcast ? "阴" : "多云",
+        icon: overcast ? "fa-cloud" : (isDay ? "fa-cloud-sun" : "fa-cloud-moon")
+      };
+    }
+
     const item = weatherMap.find((entry) => entry.codes.includes(code)) || {
       label: "天气",
       dayIcon: "fa-cloud",
@@ -236,14 +254,19 @@
       state.card.title = "天气数据暂不可用";
       return;
     }
-    const description = weatherDescription(state.weather.weatherCode, state.weather.isDay);
+    const description = weatherDescription(state.weather);
     const icon = state.card.querySelector("[data-clock-icon]");
     icon.className = `fa-solid ${description.icon}`;
     state.card.querySelector("[data-clock-condition]").textContent = description.label;
     state.card.querySelector("[data-clock-temperature]").textContent = Number.isFinite(state.weather.temperature) ? `${state.weather.temperature}°` : "--°";
     state.card.querySelector("[data-clock-wind]").textContent = windLabel(state.weather.windDirection);
     state.card.querySelector("[data-clock-wind-icon]").style.setProperty("--wind-arrow-rotation", `${(state.weather.windDirection || 0) - 45}deg`);
-    state.card.title = `天气更新于 ${new Date(state.weather.fetchedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
+    const details = [
+      `WMO ${state.weather.weatherCode}`,
+      Number.isFinite(state.weather.precipitation) ? `降水 ${state.weather.precipitation} mm` : "",
+      Number.isFinite(state.weather.cloudCover) ? `云量 ${state.weather.cloudCover}%` : ""
+    ].filter(Boolean).join(" · ");
+    state.card.title = `天气更新于 ${new Date(state.weather.fetchedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}${details ? ` · ${details}` : ""}`;
   }
 
   function createCard() {
@@ -306,7 +329,10 @@
     const weatherMatchesLocation = cache.weather &&
       Math.abs(cache.weather.latitude - state.location.latitude) < 0.01 &&
       Math.abs(cache.weather.longitude - state.location.longitude) < 0.01;
-    const hasFreshWeather = weatherMatchesLocation && now - cache.weather.fetchedAt < CONFIG.weatherCacheMs && hasFreshLocation;
+    const hasClassificationData = weatherMatchesLocation &&
+      Number.isFinite(cache.weather.precipitation) &&
+      Number.isFinite(cache.weather.cloudCover);
+    const hasFreshWeather = hasClassificationData && now - cache.weather.fetchedAt < CONFIG.weatherCacheMs && hasFreshLocation;
     // 切换城市时先清空旧城市天气，避免定位期间显示不匹配的数据。
     state.weather = weatherMatchesLocation ? cache.weather : null;
     renderWeather();
