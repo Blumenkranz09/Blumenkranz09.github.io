@@ -280,6 +280,34 @@
   display: block;
 }
 
+.fortune-card__keywords {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 0 7px;
+  color: var(--fortune-accent);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.fortune-card__keywords b {
+  padding: 2px 6px;
+  color: var(--fortune-accent);
+  background: var(--fortune-soft);
+  border: 1px solid var(--fortune-line);
+  border-radius: 999px;
+  font-size: 0.55rem;
+  font-weight: 650;
+}
+
+.fortune-card__keywords span {
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 .fortune-card__poem {
   display: block;
   margin: 0 0 7px;
@@ -353,6 +381,23 @@
   white-space: nowrap;
 }
 
+.fortune-card__copy-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+  color: var(--second-text-color);
+  font-size: 0.54rem;
+  opacity: 0.48;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.fortune-card__result:hover .fortune-card__copy-hint {
+  color: var(--fortune-accent);
+  opacity: 0.82;
+}
+
 .fortune-card__footer {
   overflow: hidden;
   color: var(--second-text-color);
@@ -368,20 +413,28 @@
   pointer-events: none;
 }
 
-.fortune-card[data-drawing="true"] .fortune-card__bamboo {
+.fortune-card[data-phase="calm"] .fortune-card__bamboo {
+  animation: fortune-card-breathe 0.85s ease-in-out infinite alternate;
+}
+
+.fortune-card[data-phase="shake"] .fortune-card__bamboo {
   animation: fortune-card-shake 0.16s ease-in-out infinite alternate;
 }
 
-.fortune-card[data-drawing="true"] .fortune-card__bamboo i:nth-child(1) {
+.fortune-card[data-phase="shake"] .fortune-card__bamboo i:nth-child(1) {
   animation: fortune-stick-left 0.24s ease-in-out infinite alternate;
 }
 
-.fortune-card[data-drawing="true"] .fortune-card__bamboo i:nth-child(3) {
+.fortune-card[data-phase="shake"] .fortune-card__bamboo i:nth-child(3) {
   animation: fortune-stick-right 0.24s ease-in-out infinite alternate;
 }
 
 .fortune-card[data-drawing="true"] .fortune-card__draw-label {
   color: var(--fortune-accent);
+}
+
+.fortune-card[data-phase="reveal"] .fortune-card__bamboo i:nth-child(2) {
+  animation: fortune-stick-rise 0.42s cubic-bezier(0.2, 0.85, 0.25, 1) both;
 }
 
 .fortune-card.is-revealing .fortune-card__result {
@@ -397,6 +450,11 @@
   to { transform: rotate(4deg) translateX(1px); }
 }
 
+@keyframes fortune-card-breathe {
+  from { opacity: 0.68; transform: translateY(1px) scale(0.98); }
+  to { opacity: 1; transform: translateY(-1px) scale(1.02); }
+}
+
 @keyframes fortune-stick-left {
   from { transform: rotate(-12deg) translateY(2px); }
   to { transform: rotate(-5deg) translateY(-2px); }
@@ -405,6 +463,11 @@
 @keyframes fortune-stick-right {
   from { transform: rotate(12deg) translateY(2px); }
   to { transform: rotate(5deg) translateY(-2px); }
+}
+
+@keyframes fortune-stick-rise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-11px); }
 }
 
 @keyframes fortune-card-reveal {
