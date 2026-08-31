@@ -1,83 +1,128 @@
 /**
- * 首页今日签卡片。
- * 玻璃卡片保持主题一致，暖色高光与纸片看板娘形成轻微视觉关联。
+ * 首页“每日一签”卡片。
+ * 沿用 Redefine 玻璃质感，并根据签位切换强调色。
  */
-.hitokoto-card {
+.fortune-card {
+  --fortune-accent: #b78a4a;
+  --fortune-soft: rgba(183, 138, 74, 0.13);
+  --fortune-line: rgba(183, 138, 74, 0.28);
   position: relative;
   width: 100%;
-  min-height: 112px;
+  min-height: 176px;
   margin-top: 23px;
-  padding: 14px 17px 13px;
+  padding: 14px 16px 12px;
   box-sizing: border-box;
   overflow: hidden;
   color: var(--first-text-color);
-  background: linear-gradient(120deg, rgba(255, 222, 158, 0.09), transparent 44%), var(--background-color-transparent-80) !important;
+  background:
+    radial-gradient(circle at 91% 11%, var(--fortune-soft), transparent 31%),
+    linear-gradient(135deg, rgba(255, 240, 204, 0.07), transparent 45%),
+    var(--background-color-transparent-80) !important;
+  border: 1px solid rgba(127, 127, 127, 0.07);
   border-radius: 18px;
   box-shadow: var(--redefine-box-shadow);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  -webkit-backdrop-filter: blur(11px);
+  backdrop-filter: blur(11px);
+  transition: box-shadow 0.25s ease, border-color 0.3s ease, background-color 0.3s ease;
 }
 
-/* 装饰层不参与交互，避免影响复制按钮的点击区域。 */
-.hitokoto-card::before {
-  content: "“";
+.fortune-card:hover {
+  box-shadow: var(--redefine-box-shadow-hover);
+}
+
+.fortune-card::before {
+  content: "签";
   position: absolute;
-  top: 27px;
-  left: 9px;
-  color: var(--first-text-color);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 4.5rem;
+  right: -3px;
+  bottom: -21px;
+  color: var(--fortune-accent);
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 6.3rem;
   font-weight: 700;
   line-height: 1;
-  opacity: 0.055;
+  opacity: 0.045;
   pointer-events: none;
+  transform: rotate(-7deg);
 }
 
-.hitokoto-card::after {
+.fortune-card::after {
   content: "";
   position: absolute;
-  top: 41px;
-  bottom: 16px;
+  top: 43px;
+  bottom: 15px;
   left: 0;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, rgba(225, 174, 91, 0.1), rgba(225, 174, 91, 0.42), rgba(225, 174, 91, 0.08));
+  background: linear-gradient(180deg, transparent, var(--fortune-accent), transparent);
+  opacity: 0.65;
   pointer-events: none;
 }
 
-.hitokoto-card > * {
+.fortune-card[data-rank="gold"] {
+  --fortune-accent: #d39a22;
+  --fortune-soft: rgba(236, 181, 55, 0.2);
+  --fortune-line: rgba(224, 164, 34, 0.36);
+}
+
+.fortune-card[data-rank="red"] {
+  --fortune-accent: #d45d55;
+  --fortune-soft: rgba(212, 93, 85, 0.15);
+  --fortune-line: rgba(212, 93, 85, 0.3);
+}
+
+.fortune-card[data-rank="amber"] {
+  --fortune-accent: #c8843d;
+  --fortune-soft: rgba(200, 132, 61, 0.14);
+  --fortune-line: rgba(200, 132, 61, 0.28);
+}
+
+.fortune-card[data-rank="blue"] {
+  --fortune-accent: #5f8fb3;
+  --fortune-soft: rgba(95, 143, 179, 0.14);
+  --fortune-line: rgba(95, 143, 179, 0.27);
+}
+
+.fortune-card[data-rank="violet"] {
+  --fortune-accent: #8a75a8;
+  --fortune-soft: rgba(138, 117, 168, 0.14);
+  --fortune-line: rgba(138, 117, 168, 0.28);
+}
+
+.fortune-card[data-rank="gray"] {
+  --fortune-accent: #7e858c;
+  --fortune-soft: rgba(126, 133, 140, 0.13);
+  --fortune-line: rgba(126, 133, 140, 0.25);
+}
+
+.fortune-card > * {
   position: relative;
   z-index: 1;
 }
 
-.hitokoto-card:hover {
-  box-shadow: var(--redefine-box-shadow-hover);
-}
-
-.hitokoto-card__header {
+.fortune-card__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 24px;
+  min-height: 25px;
 }
 
-.hitokoto-card__title {
+.fortune-card__title {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   color: var(--second-text-color);
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-weight: 650;
+  letter-spacing: 0.05em;
 }
 
-.hitokoto-card__title i {
-  color: #c69348;
+.fortune-card__title i {
+  color: var(--fortune-accent);
   font-size: 0.72rem;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.hitokoto-card__actions {
+.fortune-card__header-right {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
@@ -85,20 +130,23 @@
   min-width: 0;
 }
 
-/* 分类由一言 API 的 type 字段映射生成。 */
-.hitokoto-card__category {
-  padding: 2px 7px;
-  color: var(--second-text-color);
-  background: rgba(127, 127, 127, 0.08);
-  border: 1px solid rgba(127, 127, 127, 0.07);
+.fortune-card__rank {
+  min-width: 3.6em;
+  padding: 2px 8px;
+  color: var(--fortune-accent);
+  background: var(--fortune-soft);
+  border: 1px solid var(--fortune-line);
   border-radius: 999px;
-  font-size: 0.61rem;
-  font-weight: 500;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.68rem;
+  font-weight: 700;
   line-height: 1.45;
+  text-align: center;
   white-space: nowrap;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.hitokoto-card__feedback {
+.fortune-card__feedback {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -113,139 +161,275 @@
   transition: max-width 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 }
 
-.hitokoto-card__feedback.is-visible {
+.fortune-card__feedback.is-visible {
   max-width: 4.8em;
   opacity: 0.9;
   transform: translateX(0);
 }
 
-.hitokoto-card__refresh {
-  display: inline-grid;
-  width: 25px;
-  height: 25px;
-  padding: 0;
-  place-items: center;
-  color: var(--second-text-color);
+.fortune-card__stage {
+  position: relative;
+  min-height: 112px;
+  margin-top: 7px;
+}
+
+.fortune-card__draw,
+.fortune-card__result {
+  width: 100%;
+  color: inherit;
   background: transparent;
   border: 0;
-  border-radius: 50%;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.fortune-card__draw {
+  display: flex;
+  min-height: 108px;
+  padding: 5px 4px 2px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 12px;
   cursor: pointer;
-  transition: color 0.2s ease, background-color 0.2s ease, transform 0.25s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.25s ease;
 }
 
-.hitokoto-card__refresh:hover,
-.hitokoto-card__refresh:focus-visible {
-  color: var(--primary-color);
-  background: rgba(127, 127, 127, 0.09);
-  transform: rotate(35deg);
+.fortune-card__draw:hover {
+  background: rgba(127, 127, 127, 0.055);
+  transform: translateY(-1px);
 }
 
-.hitokoto-card__refresh:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline: 2px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
+.fortune-card__draw:focus-visible,
+.fortune-card__result:focus-visible {
+  outline: 2px solid var(--fortune-accent);
   outline-offset: 2px;
 }
 
-.hitokoto-card__quote {
+.fortune-card__bamboo {
+  position: relative;
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+.fortune-card__bamboo::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 0;
+  left: 4px;
+  height: 22px;
+  border: 2px solid var(--fortune-accent);
+  border-top-width: 1px;
+  border-radius: 4px 4px 9px 9px;
+  background: linear-gradient(90deg, var(--fortune-soft), transparent, var(--fortune-soft));
+  box-shadow: inset 0 -5px 9px var(--fortune-soft);
+}
+
+.fortune-card__bamboo i {
+  position: relative;
+  z-index: 1;
   display: block;
-  width: 100%;
-  min-height: 36px;
-  margin: 9px 0 5px;
-  padding: 0 2px;
-  overflow: hidden;
+  width: 4px;
+  height: 37px;
+  border-radius: 3px 3px 1px 1px;
+  background: var(--fortune-accent);
+  opacity: 0.78;
+  transform-origin: 50% 100%;
+}
+
+.fortune-card__bamboo i:nth-child(1) { transform: rotate(-8deg) translateY(2px); }
+.fortune-card__bamboo i:nth-child(2) { height: 41px; }
+.fortune-card__bamboo i:nth-child(3) { transform: rotate(8deg) translateY(2px); }
+
+.fortune-card__draw-label {
   color: var(--first-text-color);
-  background: transparent;
-  border: 0;
-  border-radius: 6px;
-  cursor: copy;
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 500;
-  line-height: 1.55;
-  letter-spacing: 0.01em;
-  text-align: left;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.93rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
 }
 
-.hitokoto-card__quote span {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.hitokoto-card__quote:hover {
-  color: color-mix(in srgb, var(--first-text-color) 82%, #b98743);
-}
-
-.hitokoto-card__quote:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline: 2px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
-  outline-offset: 3px;
-}
-
-.hitokoto-card__source {
-  overflow: hidden;
+.fortune-card__draw small {
+  margin-top: 3px;
   color: var(--second-text-color);
-  font-size: 0.67rem;
-  line-height: 1.3;
-  text-align: right;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  opacity: 0.72;
+}
+
+.fortune-card__result {
+  display: none;
+  min-height: 108px;
+  padding: 6px 2px 2px;
+  cursor: copy;
+  text-align: left;
+}
+
+.fortune-card[data-drawn="true"] .fortune-card__draw {
+  display: none;
+}
+
+.fortune-card[data-drawn="true"] .fortune-card__result {
+  display: block;
+}
+
+.fortune-card__poem {
+  display: block;
+  margin: 0 0 7px;
+  color: var(--first-text-color);
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: 0.035em;
+  text-align: center;
+}
+
+.fortune-card__meaning {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+  align-items: start;
+  color: var(--second-text-color);
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.fortune-card__meaning b {
+  margin-top: 1px;
+  padding: 1px 4px;
+  color: var(--fortune-accent);
+  border: 1px solid var(--fortune-line);
+  border-radius: 4px;
+  font-size: 0.58rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.fortune-card__guidance {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.fortune-card__guidance > span {
+  display: grid;
+  grid-template-columns: 17px minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  padding: 4px 5px;
+  color: var(--second-text-color);
+  background: rgba(127, 127, 127, 0.055);
+  border-radius: 6px;
+  font-size: 0.6rem;
+  line-height: 1.25;
+}
+
+.fortune-card__guidance b {
+  display: inline-grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.57rem;
+}
+
+.fortune-card__guidance .is-suitable b { background: #63a477; }
+.fortune-card__guidance .is-avoid b { background: #ba7772; }
+
+.fortune-card__guidance span span {
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0.82;
-  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-/* 换签只移动文字层，卡片本身保持稳定。 */
-.hitokoto-card.is-changing .hitokoto-card__quote,
-.hitokoto-card.is-changing .hitokoto-card__source {
-  opacity: 0;
-  transform: translateY(3px);
-}
-
-.hitokoto-card[data-loading="true"] .hitokoto-card__quote,
-.hitokoto-card[data-loading="true"] .hitokoto-card__source {
-  opacity: 0.52;
-}
-
-.hitokoto-card.is-changing[data-loading="true"] .hitokoto-card__quote,
-.hitokoto-card.is-changing[data-loading="true"] .hitokoto-card__source {
-  opacity: 0;
-}
-
-.hitokoto-card[data-loading="true"] .hitokoto-card__refresh i {
-  animation: hitokoto-card-loading 0.8s linear infinite;
-}
-
-.hitokoto-card[data-queued="true"] .hitokoto-card__refresh {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 12%, transparent);
-}
-
-.hitokoto-card[data-fallback="true"] .hitokoto-card__title i {
+.fortune-card__footer {
+  overflow: hidden;
+  color: var(--second-text-color);
+  font-size: 0.59rem;
+  line-height: 1.3;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0.65;
 }
 
-@keyframes hitokoto-card-loading {
-  to { transform: rotate(360deg); }
+.fortune-card[data-drawing="true"] .fortune-card__draw {
+  pointer-events: none;
+}
+
+.fortune-card[data-drawing="true"] .fortune-card__bamboo {
+  animation: fortune-card-shake 0.16s ease-in-out infinite alternate;
+}
+
+.fortune-card[data-drawing="true"] .fortune-card__bamboo i:nth-child(1) {
+  animation: fortune-stick-left 0.24s ease-in-out infinite alternate;
+}
+
+.fortune-card[data-drawing="true"] .fortune-card__bamboo i:nth-child(3) {
+  animation: fortune-stick-right 0.24s ease-in-out infinite alternate;
+}
+
+.fortune-card[data-drawing="true"] .fortune-card__draw-label {
+  color: var(--fortune-accent);
+}
+
+.fortune-card.is-revealing .fortune-card__result {
+  animation: fortune-card-reveal 0.58s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.fortune-card.is-revealing .fortune-card__rank {
+  animation: fortune-rank-glow 0.7s ease-out;
+}
+
+@keyframes fortune-card-shake {
+  from { transform: rotate(-4deg) translateX(-1px); }
+  to { transform: rotate(4deg) translateX(1px); }
+}
+
+@keyframes fortune-stick-left {
+  from { transform: rotate(-12deg) translateY(2px); }
+  to { transform: rotate(-5deg) translateY(-2px); }
+}
+
+@keyframes fortune-stick-right {
+  from { transform: rotate(12deg) translateY(2px); }
+  to { transform: rotate(5deg) translateY(-2px); }
+}
+
+@keyframes fortune-card-reveal {
+  from { opacity: 0; transform: translateY(9px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fortune-rank-glow {
+  0% { box-shadow: 0 0 0 0 var(--fortune-soft); }
+  45% { box-shadow: 0 0 0 6px var(--fortune-soft); }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hitokoto-card,
-  .hitokoto-card__refresh,
-  .hitokoto-card__quote,
-  .hitokoto-card__source,
-  .hitokoto-card__feedback {
-    transition: none;
-  }
-
-  .hitokoto-card[data-loading="true"] .hitokoto-card__refresh i {
-    animation: none;
+  .fortune-card,
+  .fortune-card *,
+  .fortune-card *::before,
+  .fortune-card *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
 @media print {
-  .hitokoto-card {
+  .fortune-card {
     display: none !important;
   }
 }
