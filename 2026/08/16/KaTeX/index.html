@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Hexo Theme Redefine">
+    
+    
+    <meta name="author" content="Blumenkranz09">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes ASAP (before DOMContentLoaded)
+            (function() {
+                const addBodyClass = () => {
+                    const b = document.body;
+                    if (!b) return false;
+                    b.classList.add(theme + "-mode");
+                    return true;
+                };
+
+                // Try immediately
+                if (addBodyClass()) return;
+
+                // Observe until body exists
+                const mo = new MutationObserver(() => {
+                    if (addBodyClass()) mo.disconnect();
+                });
+                mo.observe(document.documentElement, { childList: true, subtree: true });
+            })();
+        })();
+    </script>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://Blumenkranz09.github.io/2026/08/16/katex/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KaTeX 数学公式使用指南">
+<meta property="og:url" content="https://blumenkranz09.github.io/2026/08/16/KaTeX/index.html">
+<meta property="og:site_name" content="织梦岛">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blumenkranz09.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2026-08-16T12:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-31T03:58:24.812Z">
+<meta property="article:author" content="Blumenkranz09">
+<meta property="article:tag" content="Blog">
+<meta property="article:tag" content="HEXO">
+<meta property="article:tag" content="Bash">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blumenkranz09.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/images/xiaodao.png" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/xiaodao.png">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/images/xiaodao.png">
+    <!--- Page Info-->
+    
+    <title>
+        
+            KaTeX 数学公式使用指南 | Blumenkranz09.Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+        
+            
+    
+            
+    
+            
+                
+                    <link rel="stylesheet" href="/css/blog-aplayer.css?v=20260816-3">
+                
+    
+            
+                
+                    <link rel="stylesheet" href="/css/blog-weather-clock.css?v=20260816-6">
+                
+    
+            
+                
+                    <link rel="stylesheet" href="/css/blog-email-copy.css?v=20260816-3">
+                
+    
+            
+                
+                    <link rel="stylesheet" href="/css/blog-drag-mascot.css?v=20260816-11">
+                
+    
+            
+                
+                    <link rel="stylesheet" href="/css/blog-hitokoto-card.css?v=20260816-4">
+                
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+        
+<script src="/js/build/libs/anime.min.js"></script>
+
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"blumenkranz09.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":false,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":true,"percentage":false},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":false,"site_uv":false,"post_pv":true},"single_page":true,"preloader":{"enable":true,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":false},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/light09.jpg","dark":"/images/dark09.jpg"},"title":"织梦岛","subtitle":{"text":["茫茫虚负平生志 今日不知明日事","人死万事休"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":[{"icon":"fa-brands fa-github","url":"https://github.com/Blumenkranz09"},{"icon":"fa-brands fa-instagram","url":"https://www.instagram.com/b1umenkranz9?igsh=N2p2bmE5YWZ6aHVw"},{"icon":"fa-solid fa-at","url":"nextuphero@163.com"}],"qrs":[]}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":"ゲルドの街","artist":"岩田恭明","url":"/music/岩田恭明 - ゲルドの街.mp3","cover":"https://p3.music.126.net/sHMTWM6Z0zXlqz98Wdbl3A==/109951163555243264.jpg?param=300y300","lrc":null,"duration":432.118},{"name":"馬宿","artist":"岩田恭明","url":"/music/岩田恭明 - 馬宿.mp3","duration":145.868,"cover":"https://p3.music.126.net/sHMTWM6Z0zXlqz98Wdbl3A==/109951163555243264.jpg?param=300y300","lrc":null},{"name":"再会ミファー","artist":"岩田恭明","url":"/music/岩田恭明 - 再会 ミファー.mp3","duration":107.624,"cover":"https://p3.music.126.net/sHMTWM6Z0zXlqz98Wdbl3A==/109951163555243264.jpg?param=300y300","lrc":null},{"name":"ハテノ村","artist":"岩田恭明","url":"/music/岩田恭明 - ハテノ村.mp3","duration":349.104,"cover":"https://p3.music.126.net/sHMTWM6Z0zXlqz98Wdbl3A==/109951163555243264.jpg?param=300y300","lrc":null},{"name":"Childhood Dreams","artist":"Seraphine","url":"/music/Seraphine, Jasmine Clarke, Absofacto - Childhood Dreams.mp3","duration":164.31,"cover":"https://p3.music.126.net/oeHFaJHKYWICwvR4Exidew==/109951168648967564.jpg?param=300y300","lrc":null},{"name":"Here, Tomorrow","artist":"幾田りら, Kevin Penkin","url":"/music/幾田りら, Kevin Penkin - Here, Tomorrow.mp3","duration":164.31,"cover":"https://p2.music.126.net/EMiUSMLbvOQj_pQsdjISrg==/109951170701063004.jpg?param=300y300","lrc":null},{"name":"Stay Alive","artist":"José González","url":"/music/José González - Stay Alive.mp3","duration":164.31,"cover":"https://p2.music.126.net/towFA_-bDYoxDt8saaRd1A==/5904377441366633.jpg?param=300y300","lrc":null},{"name":"Wildfire","artist":"SYML","url":"/music/SYML - Wildfire.mp3","duration":164.31,"cover":"https://p2.music.126.net/OBde3SFpg9l9CPGSSuzqcA==/109951168132085261.jpg?param=300y300","lrc":null},{"name":"沙堆","artist":"章尾而","url":"/music/章尾而 - 沙堆.mp3","duration":164.31,"cover":"https://image.joox.com/JOOXcover/0/73bb85027630d61f/300","lrc":null},{"name":"答案","artist":"杨坤, 郭采洁","url":"/music/杨坤, 郭采洁 - 答案.mp3","duration":164.31,"cover":"https://p2.music.126.net/BcPOcK3x1blhruOHpASxjw==/109951173753242864.jpg?param=300y300","lrc":null}]},"mermaid":{"enable":true,"version":"11.4.1","theme":{"light":"default","dark":"dark"}}},"version":"2.9.0","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"icon":"fa-solid fa-tags","path":"/tags/"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur","masonry":{"batch_size":12,"initial_batch_size":24}},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":null},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footer":{"runtime":false,"icon":"<i class=\"fa-solid fa-heart fa-beat\" style=\"--fa-animation-duration: 0.5s; color: #f54545\"></i>","start":"2025/8/10 11:00:00","statistics":true,"customize":null,"icp":{"enable":false,"number":null,"url":null}},"footerStart":"2025/8/10 11:00:00","mermaid":{"style":{"light":"default","dark":"dark"}}};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.i18n = {"search":"站内搜索您需要的内容...","toc":"目录","prev":"上一页","next":"下一页","prev_posts":"上一篇","next_posts":"下一篇","page":"第 %d 页","recent_posts":"最新文章","share":"分享","powered_by":"由 %s 驱动","theme":"主题","rss_feed":"RSS Feed","category":"分类","categories":"分类","tag":"标签","tags":"标签","post":"文章","posts":"文章","tagcloud":"标签云","comment":"评论","comments":"评论","top":"置顶","sticky":"置顶","go-back-home":"回到首页","masonry_loading":"照片加载中...","image_viewer":"图片查看器","close":"关闭","exif":{"title":"EXIF","cards":{"camera":"相机","lens":"镜头","exposure":"曝光","other":"其他"},"fields":{"make":"品牌","model":"机型","date_taken":"拍摄时间","lens_model":"镜头","focal_length":"焦距","focus_mode":"对焦模式","shutter":"快门","aperture":"光圈","iso":"感光度","exposure_program":"曝光程序","exposure_compensation":"曝光补偿","metering_mode":"测光模式","flash":"闪光灯","white_balance":"白平衡","latitude":"纬度","longitude":"经度","altitude":"海拔"},"status":{"loading":"加载中...","no_exif":"无 EXIF 信息","library_missing":"EXIF 库未加载","image_source_missing":"图片地址不可用","unavailable":"EXIF 不可用（可能被 CORS 阻止或缺少元数据）","flag_unavailable":"EXIF 不可用"}},"home":"首页","archive":"归档","archives":"归档","about":"关于","links":"链接","link":"链接","friends":"友情链接","friend":"友情链接","timeline":"时间轴","shuoshuo":"说说","bookmarks":"书签","site_uv":"访问人数","site_pv":"总访问量","read_more":"阅读全文","wordcount":"字","min2read":"分钟","changelog":"更新日志","status":"状态","runtime":"博客已运行","days":"天","hours":"小时","minutes":"分钟","seconds":"秒","optimized_by":"并由 Evan 进行优化","rights":"版权所有","site_posts":"共撰写了 %s 篇文章","site_wordcount":"共 %s 字","copyright":{"title":"标题","author":"作者","link":"链接","create_time":"创建于","update_time":"更新于","license_title":"版权声明","license_content":"本文章采用 %s 进行许可。","all_rights_reserved":"版权所有 &#169 %s，禁止转载。","public_domain":"本文为公有领域作品，可自由转载、引用。"},"ago":{"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"},"create_time":"创建","update_time":"更新","expired":"这篇文章最后更新于 %s 天前，内容可能已经过时。"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+        
+<link rel="stylesheet" href="/fontawesome/thin.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+
+<body>
+	<div class="progress-bar-container">
+	
+	<span class="scroll-progress-bar"></span>
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<style>
+    :root {
+        --preloader-background-color: #fff;
+        --preloader-text-color: #000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --preloader-background-color: #202124;
+            --preloader-text-color: #fff;
+        }
+    }
+
+    @media (prefers-color-scheme: light) {
+        :root {
+            --preloader-background-color: #fff;
+            --preloader-text-color: #000;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .ml13 {
+            font-size: 2.6rem !important; /* Adjust this value as needed */
+        }
+    }
+
+    .preloader {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem; /* Tailwind 'gap-4' is 1rem */
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        padding: 12px;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh; /* 'h-screen' is 100% of the viewport height */
+        background-color: var(--preloader-background-color);
+        z-index: 1100; /* 'z-[1100]' sets the z-index */
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .ml13 {
+        font-size: 3.2rem;
+        /* text-transform: uppercase; */
+        color: var(--preloader-text-color);
+        letter-spacing: -1px;
+        font-weight: 500;
+        font-family: 'Chillax-Variable', sans-serif;
+        text-align: center;
+    }
+
+    .ml13 .word {
+        display: inline-flex;
+        flex-wrap: wrap;
+        white-space: nowrap;
+    }
+
+    .ml13 .letter {
+        display: inline-block;
+        line-height: 1em;
+    }
+</style>
+
+<div class="preloader">
+    <h2 class="ml13">
+        Blumenkranz09.Blog
+    </h2>
+    <script>
+        var textWrapper = document.querySelector('.ml13');
+        // Split text into words
+        var words = textWrapper.textContent.trim().split(' ');
+
+        // Clear the existing content
+        textWrapper.innerHTML = '';
+
+        // Wrap each word and its letters in spans
+        words.forEach(function(word) {
+            var wordSpan = document.createElement('span');
+            wordSpan.classList.add('word');
+            wordSpan.innerHTML = word.replace(/\S/g, "<span class='letter'>$&</span>");
+            textWrapper.appendChild(wordSpan);
+            textWrapper.appendChild(document.createTextNode(' ')); // Add space between words
+        });
+
+        var animation = anime.timeline({ loop: true })
+            .add({
+                targets: '.ml13 .letter',
+                translateY: [20, 0],
+                translateZ: 0,
+                opacity: [0, 1],
+                filter: ['blur(5px)', 'blur(0px)'],
+                easing: "easeOutExpo",
+                duration: 1200,
+                delay: (el, i) => 300 + 20 * i,
+            })
+            .add({
+                targets: '.ml13 .letter',
+                translateY: [0, -20],
+                opacity: [1, 0],
+                filter: ['blur(0px)', 'blur(5px)'],
+                easing: "easeInExpo",
+                duration: 1000,
+                delay: (el, i) => 15 * i,
+                complete: function() {
+                    hidePreloader();
+                }
+            }, '-=700');
+
+
+        let themeStatus = JSON.parse(localStorage.getItem('REDEFINE-THEME-STATUS'))?.isDark;
+
+        // If the theme status is not found in local storage, check the preferred color scheme
+        if (themeStatus === undefined || themeStatus === null) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                themeStatus = 'dark';
+            } else {
+                themeStatus = 'light';
+            }
+        }
+
+        // Now you can use the themeStatus variable in your code
+        if (themeStatus) {
+            document.documentElement.style.setProperty('--preloader-background-color', '#202124');
+            document.documentElement.style.setProperty('--preloader-text-color', '#fff');
+        } else {
+            document.documentElement.style.setProperty('--preloader-background-color', '#fff');
+            document.documentElement.style.setProperty('--preloader-text-color', '#000');
+        }
+
+        window.addEventListener('load', function () {
+            setTimeout(hidePreloader, 5000); // Call hidePreloader after 5000 milliseconds if not already called by animation
+        });
+
+        function hidePreloader() {
+            var preloader = document.querySelector('.preloader');
+            preloader.style.opacity = '0';
+            setTimeout(function () {
+                preloader.style.display = 'none';
+            }, 200);
+        }
+    </script>
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+                <a class="logo-image h-8 w-8 sm:w-10 sm:h-10 mr-3" href="/">
+                    <img src="/images/xiaodao.png" class="w-full h-full rounded-xs">
+                </a>
+            
+            <a class="logo-title" href="/">
+                
+                Blumenkranz09.Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/tags/"
+                                        >
+                                    <i class="fa-solid fa-tags fa-fw"></i>
+                                    标签
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/tags/"
+                        >
+                            <span>
+                                标签
+                            </span>
+                            
+                                <i class="fa-solid fa-tags fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+
+            
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">3</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">1</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">3</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">KaTeX 数学公式使用指南</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] shrink-0 rounded-medium border border-border-color p-px">
+				<img src="/images/123456.png">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Blumenkranz09</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv1</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2026-08-16 20:00</span>
+        <span class="mobile">2026-08-16 20:00</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2026-08-31 11:58:24</span>
+            <span class="mobile">2026-08-31 11:58:24</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/website/">website</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Blog/">Blog</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/HEXO/">HEXO</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/Bash/">Bash</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<h2 id="1-KaTeX-是什么"><a href="#1-KaTeX-是什么" class="headerlink" title="1. KaTeX 是什么"></a>1. KaTeX 是什么</h2><p>KaTeX 是数学公式渲染工具，可以把 LaTeX 语法转换成网页中的数学公式。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LaTeX</td>
+<td>公式的书写语法，例如 <code>\frac{a}{b}</code></td>
+</tr>
+<tr>
+<td>KaTeX</td>
+<td>负责把 LaTeX 语法渲染成公式</td>
+</tr>
+</tbody></table>
+<p>因此，日常所谓的“写 KaTeX 公式”，实际上是在写 KaTeX 支持的 LaTeX 语法。</p>
+<hr>
+<h2 id="2-行内公式与独立公式"><a href="#2-行内公式与独立公式" class="headerlink" title="2. 行内公式与独立公式"></a>2. 行内公式与独立公式</h2><h3 id="2-1-行内公式"><a href="#2-1-行内公式" class="headerlink" title="2.1 行内公式"></a>2.1 行内公式</h3><p>使用一对 <code>$</code> 包裹：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">速度计算公式为 $v=\frac{s}{t}$，其中 $s$ 表示路程。</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="2-2-独立公式"><a href="#2-2-独立公式" class="headerlink" title="2.2 独立公式"></a>2.2 独立公式</h3><p>使用两对 <code>$$</code> 包裹：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">v=\frac{s}{t}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p><code>$...$</code> 和 <code>$$...$$</code> 是 Markdown 编辑器或 KaTeX 自动渲染功能常用的分隔符。直接调用 KaTeX API 时，一般只传入分隔符内部的公式内容。</p>
+</blockquote>
+<hr>
+<h2 id="3-基础运算符"><a href="#3-基础运算符" class="headerlink" title="3. 基础运算符"></a>3. 基础运算符</h2><table>
+<thead>
+<tr>
+<th>效果</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加、减</td>
+<td><code>a+b</code>、<code>a-b</code></td>
+</tr>
+<tr>
+<td>乘法、点乘</td>
+<td><code>a\times b</code>、<code>a\cdot b</code></td>
+</tr>
+<tr>
+<td>除法</td>
+<td><code>a\div b</code></td>
+</tr>
+<tr>
+<td>正负号</td>
+<td><code>\pm</code></td>
+</tr>
+<tr>
+<td>不等于</td>
+<td><code>a\ne b</code></td>
+</tr>
+<tr>
+<td>约等于</td>
+<td><code>a\approx b</code></td>
+</tr>
+<tr>
+<td>小于等于</td>
+<td><code>a\le b</code></td>
+</tr>
+<tr>
+<td>大于等于</td>
+<td><code>a\ge b</code></td>
+</tr>
+<tr>
+<td>无穷大</td>
+<td><code>\infty</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-上标与下标"><a href="#4-上标与下标" class="headerlink" title="4. 上标与下标"></a>4. 上标与下标</h2><div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$x^2$          &lt;!-- 上标 --&gt;</span><br><span class="line">$x^{10}$       &lt;!-- 多字符上标 --&gt;</span><br><span class="line">$x<span class="emphasis">_1$          &lt;!-- 下标 --&gt;</span></span><br><span class="line"><span class="emphasis">$T_</span>{current}$  &lt;!-- 多字符下标 --&gt;</span><br><span class="line">$x<span class="emphasis">_i^2$        &lt;!-- 同时使用 --&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<p>多个字符必须使用 <code>{}</code> 包起来，否则只有紧跟符号的第一个字符会成为上下标。</p>
+<hr>
+<h2 id="5-分数与根号"><a href="#5-分数与根号" class="headerlink" title="5. 分数与根号"></a>5. 分数与根号</h2><div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$\frac{a}{b}$</span><br><span class="line">$\sqrt{x}$</span><br><span class="line">$\sqrt[n]{x}$</span><br></pre></td></tr></table></figure></div>
+
+<p>示例：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">v=\frac{s}{t}</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line">$$</span><br><span class="line">x=\sqrt{a^2+b^2}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="6-括号与绝对值"><a href="#6-括号与绝对值" class="headerlink" title="6. 括号与绝对值"></a>6. 括号与绝对值</h2><p>使用 <code>\left</code> 和 <code>\right</code> 可以让括号根据内容自动调整大小：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\left(\frac{a}{b}\right)</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<table>
+<thead>
+<tr>
+<th>效果</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>圆括号</td>
+<td><code>\left(x\right)</code></td>
+</tr>
+<tr>
+<td>方括号</td>
+<td><code>\left[x\right]</code></td>
+</tr>
+<tr>
+<td>花括号</td>
+<td><code>\left\{x\right\}</code></td>
+</tr>
+<tr>
+<td>绝对值</td>
+<td>`\left</td>
+</tr>
+<tr>
+<td>范数</td>
+<td><code>\left\lVert v\right\rVert</code></td>
+</tr>
+<tr>
+<td>尖括号</td>
+<td><code>\left\langle x\right\rangle</code></td>
+</tr>
+</tbody></table>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\left|x<span class="emphasis">_{target}-x_</span>{enemy}\right|\le AttackRange</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="7-希腊字母"><a href="#7-希腊字母" class="headerlink" title="7. 希腊字母"></a>7. 希腊字母</h2><table>
+<thead>
+<tr>
+<th>字母</th>
+<th>写法</th>
+<th>字母</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="1.448ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 640 453"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\alpha"><g data-mml-node="mi" data-latex="\alpha"><path data-c="1D6FC" d="M310 442C241 442 179 412 124 353C69 294 41 229 41 159C41 61 107-11 205-11C274-11 342 16 410 69C425 16 456-11 502-11C538-11 589 27 589 63C589 72 584 76 573 76C566 76 560 72 557 64C549 43 528 18 505 18C488 18 479 50 479 115C479 129 482 140 488 147C515 180 539 218 558 260C583 314 598 354 602 380L602 384C599 391 593 394 586 394C581 393 575 385 568 371C547 299 518 237 479 186L479 236C479 352 421 442 310 442M403 211C403 152 404 116 405 103C340 46 274 18 207 18C150 18 122 53 122 122C122 180 155 288 178 324C216 383 260 413 309 413C340 413 361 401 374 377C381 365 386 353 391 342C399 319 403 258 403 211Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\alpha</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.439ex;" xmlns="http://www.w3.org/2000/svg" width="1.299ex" height="2.036ex" role="img" focusable="false" viewBox="0 -706 574 900"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\beta"><g data-mml-node="mi" data-latex="\beta"><path data-c="1D6FD" d="M427 706C298 706 212 553 182 432L30-178C30-189 35-194 44-194L49-194C56-194 61-191 62-184L126 74C148 16 191-13 255-13C317-13 374 6 425 45C496 98 532 167 532 250C532 317 509 367 463 400C520 435 556 480 569 534C572 547 574 560 574 571C574 654 507 706 427 706M306 399C311 402 329 403 358 403C365 403 371 402 378 401C368 399 359 398 350 398L332 398C321 398 312 398 306 399M148 138C148 154 150 170 154 186L213 426C240 534 312 675 426 675C483 675 511 646 511 589C511 575 509 559 504 540C490 484 464 444 425 421C403 429 381 433 359 433C315 433 270 432 270 396C270 389 273 383 278 379C287 372 310 368 349 368C374 368 399 372 422 380C449 358 463 324 463 278C463 253 459 224 451 193C428 103 360 17 256 17C188 17 148 68 148 138Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\beta</code></td>
+</tr>
+<tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.486ex;" xmlns="http://www.w3.org/2000/svg" width="1.229ex" height="1.486ex" role="img" focusable="false" viewBox="0 -442 543 657"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\gamma"><g data-mml-node="mi" data-latex="\gamma"><path data-c="1D6FE" d="M524 378C537 403 543 416 543 417C543 426 538 431 527 431C520 431 515 428 512 422C477 357 436 265 388 146C384 212 371 274 349 331C320 405 275 442 214 442C151 442 96 400 68 361C35 314 18 279 18 257C18 248 26 243 43 243L48 250C65 302 94 335 135 349C163 358 185 363 201 363C305 363 357 281 357 116C357 77 353 45 345 20C311-91 294-162 294-193C294-208 300-215 311-215C323-215 335-194 346-153C363-89 375-32 382 18C385 33 387 46 390 55C426 167 471 275 524 378Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\gamma</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="1.023ex" height="1.636ex" role="img" focusable="false" viewBox="0 -712 452 723"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\delta"><g data-mml-node="mi" data-latex="\delta"><path data-c="1D6FF" d="M452 664C452 679 444 689 428 693C377 706 339 712 315 712C244 712 201 672 201 606C201 567 220 511 259 438C156 412 76 321 51 220C46 199 43 178 43 159C43 121 52 87 71 58C101 12 145-11 202-11C244-11 282 8 317 47C372 110 400 190 400 285C400 346 380 402 339 453L332 462C267 546 235 602 235 630C235 636 236 641 239 645C249 663 265 672 288 671C305 671 326 663 351 648C382 629 401 620 408 620C430 620 452 638 452 664M111 131C111 188 125 243 154 297C185 357 225 395 274 410C296 372 311 333 320 294C323 279 324 262 324 245C324 217 321 191 315 166C290 68 252 19 203 19C146 19 111 66 111 131Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\delta</code></td>
+</tr>
+<tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="1.061ex" height="1.62ex" role="img" focusable="false" viewBox="0 -705 469 716"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\theta"><g data-mml-node="mi" data-latex="\theta"><path data-c="1D703" d="M164-11C209-11 256 16 302 70C382 163 455 335 455 498C455 539 448 582 434 625C416 678 382 705 333 705C288 705 243 678 196 624C116 532 42 360 42 196C42 94 75-11 164-11M332 675C365 675 382 637 382 560C382 517 372 452 352 367L155 367C180 460 204 529 229 574C266 641 301 675 332 675M145 327L341 327C322 246 299 181 274 132C235 57 199 19 164 19C131 19 115 58 115 135C115 185 125 249 145 327Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\theta</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.029ex;" xmlns="http://www.w3.org/2000/svg" width="1.319ex" height="1.6ex" role="img" focusable="false" viewBox="0 -694 583 707"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\lambda"><g data-mml-node="mi" data-latex="\lambda"><path data-c="1D706" d="M86-13C97-13 109-6 122 9L355 285C390 189 416 117 433 68C444 37 451 19 456 12C467-3 486-11 512-11L533-11C543-10 548-6 548 3C548 5 546 9 542 14C535 21 528 36 520 59L319 621C302 670 261 694 196 694C181 694 174 689 174 679C174 672 180 667 191 664C205 660 214 655 219 649C226 641 236 621 247 589L342 322L72 53C59 40 53 29 53 20C53 2 68-13 86-13Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\lambda</code></td>
+</tr>
+<tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.489ex;" xmlns="http://www.w3.org/2000/svg" width="1.364ex" height="1.489ex" role="img" focusable="false" viewBox="0 -442 603 658"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\mu"><g data-mml-node="mi" data-latex="\mu"><path data-c="1D707" d="M572 142C572 151 567 156 556 156C548 156 542 149 539 136C519 56 495 16 468 16C451 16 442 30 442 58C442 75 448 109 461 159L489 266C498 302 506 327 512 358L518 386C520 393 521 398 521 400C521 421 510 431 488 431C466 431 452 419 446 394L374 108C374 97 358 77 326 47C304 26 279 16 250 16C204 16 181 43 181 98C181 117 185 144 194 181L236 347C244 378 249 400 251 411C251 432 240 442 218 442C196 442 182 429 175 403L33-169C31-177 30-182 30-185C30-206 41-216 62-216C77-216 89-208 100-193C103-186 120-117 153 14C177-4 208-13 246-13C305-13 344 18 375 54C386 17 419-13 466-13C535-13 556 68 572 142Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\mu</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="1.29ex" height="1ex" role="img" focusable="false" viewBox="0 -431 570 442"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\pi"><g data-mml-node="mi" data-latex="\pi"><path data-c="1D70B" d="M524 431L194 431C153 431 117 415 88 384C74 369 27 305 27 292C31 285 31 279 43 279C50 279 56 283 62 292C94 341 135 366 184 366L235 366C212 279 170 172 110 45C105 33 102 24 102 19C102-1 113-11 134-11C153-11 167 0 176 21C194 78 207 122 214 152L269 366L372 366C345 247 331 164 331 117C331 68 342-11 379-11C400-11 423 9 423 30C423 35 421 43 417 53C398 100 389 153 389 214C389 261 395 312 406 366L515 366C550 366 567 378 567 403C567 426 549 431 524 431Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\pi</code></td>
+</tr>
+<tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.489ex;" xmlns="http://www.w3.org/2000/svg" width="1.17ex" height="1.489ex" role="img" focusable="false" viewBox="0 -442 517 658"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\rho"><g data-mml-node="mi" data-latex="\rho"><path data-c="1D70C" d="M361 442C248 442 154 320 129 220L33-169C31-177 30-182 30-185C30-206 40-216 61-216C76-216 89-208 99-193L160 46C183 7 215-13 256-13C322-13 380 19 431 84C478 145 502 210 502 277C502 368 449 442 361 442M359 412C402 412 423 381 423 319C423 292 417 257 406 212C384 127 353 70 314 40C293 24 274 16 255 16C236 16 219 23 206 36C185 57 175 79 175 100C176 107 178 119 182 136C205 231 225 292 241 320C276 381 315 412 359 412Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\rho</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="1.292ex" height="1ex" role="img" focusable="false" viewBox="0 -431 571 442"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\sigma"><g data-mml-node="mi" data-latex="\sigma"><path data-c="1D70E" d="M525 431L300 431C252 431 207 416 166 385C102 336 38 250 38 148C38 58 100-11 190-11C257-11 317 18 368 76C417 132 441 194 441 263C441 304 432 338 414 366L515 366C550 366 567 378 567 403C567 426 550 431 525 431M107 121C107 180 121 234 150 282C184 338 228 366 283 366C341 366 370 336 370 275C370 250 365 221 355 187C335 116 302 66 256 39C233 25 211 18 191 18C136 18 107 63 107 121Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\sigma</code></td>
+</tr>
+<tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.464ex;" xmlns="http://www.w3.org/2000/svg" width="1.348ex" height="2.034ex" role="img" focusable="false" viewBox="0 -694 596 899"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\phi"><g data-mml-node="mi" data-latex="\phi"><path data-c="1D719" d="M385 445C404 524 424 601 442 680L442 683C439 690 434 694 426 694C417 694 411 686 408 671L351 445C276 442 208 414 147 362C82 307 49 243 49 170C49 62 132-7 237-13C218-92 204-149 195-183C194-186 194-189 194-190C194-200 199-205 210-205C221-205 224-199 227-187L271-14C346-11 414 17 475 69C540 125 573 189 573 262C573 369 488 436 385 445M377 415C453 410 501 363 501 283C501 243 492 203 474 164C442 92 369 26 278 17M121 149C121 189 130 229 148 268C180 340 253 405 343 415L244 16C169 22 121 69 121 149Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\phi</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: -0.025ex;" xmlns="http://www.w3.org/2000/svg" width="1.407ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 622 453"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\omega"><g data-mml-node="mi" data-latex="\omega"><path data-c="1D714" d="M505 391C505 380 509 370 517 363C542 342 554 314 554 280C554 267 553 255 550 244C530 168 477 68 396 68C344 68 313 96 303 152C316 179 326 207 333 238C336 249 337 258 337 264C337 284 329 294 314 294C276 294 266 198 264 156C227 97 184 68 133 68C78 68 51 104 51 175C51 195 54 216 59 238C70 282 99 337 146 402C150 407 152 412 152 417C152 430 145 437 130 437C123 437 116 434 110 427C61 360 13 242 13 133C13 37 49-11 121-11C178-11 227 22 270 87C284 22 322-11 383-11C416-11 447 2 475 28C522 72 557 142 581 238C596 299 604 342 604 369C604 398 597 419 583 432C576 439 567 442 558 442C532 442 505 417 505 391Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\omega</code></td>
+</tr>
+<tr>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.885ex" height="1.62ex" role="img" focusable="false" viewBox="0 -716 833 716"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\Delta"><g data-mml-node="mi" data-latex="\Delta"><path data-c="394" d="M759 0C776 0 785 4 785 13L445 696C438 709 429 716 416 716C403 716 394 709 387 696L52 25C49 18 47 14 47 12C47 4 56 0 73 0M384 604L644 83L124 83Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\Delta</code></td>
+<td><mjx-container class="MathJax" jax="SVG" overflow="overflow"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.633ex" height="1.595ex" role="img" focusable="false" viewBox="0 -705 722 705"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math" data-latex="\Omega"><g data-mml-node="mi" data-latex="\Omega"><path data-c="3A9" d="M267 25C267 73 249 147 214 246C181 335 165 404 165 454C165 576 241 675 360 675C479 675 556 576 556 454C556 405 537 328 500 225C469 137 454 70 454 25C454 1 458 0 483 0L644 0L678 168L645 168C639 136 633 111 627 93C623 82 614 76 601 73C598 72 586 72 565 72L491 72C501 110 530 164 578 234C636 321 665 394 665 453C665 528 632 590 567 639C508 683 439 705 361 705C282 705 213 683 154 639C89 591 56 529 56 453C56 395 85 322 143 234C181 178 214 129 230 72L156 72C122 72 102 77 97 86C87 118 80 145 76 168L43 168L77 0L239 0C262 0 267 2 267 25Z"></path></g></g></g></svg></mjx-container></td>
+<td><code>\Omega</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="8-集合与箭头"><a href="#8-集合与箭头" class="headerlink" title="8. 集合与箭头"></a>8. 集合与箭头</h2><h3 id="8-1-集合符号"><a href="#8-1-集合符号" class="headerlink" title="8.1 集合符号"></a>8.1 集合符号</h3><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>属于、不属于</td>
+<td><code>\in</code>、<code>\notin</code></td>
+</tr>
+<tr>
+<td>子集</td>
+<td><code>\subset</code></td>
+</tr>
+<tr>
+<td>并集、交集</td>
+<td><code>\cup</code>、<code>\cap</code></td>
+</tr>
+<tr>
+<td>空集</td>
+<td><code>\emptyset</code></td>
+</tr>
+<tr>
+<td>任意、存在</td>
+<td><code>\forall</code>、<code>\exists</code></td>
+</tr>
+</tbody></table>
+<h3 id="8-2-箭头"><a href="#8-2-箭头" class="headerlink" title="8.2 箭头"></a>8.2 箭头</h3><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>右箭头</td>
+<td><code>\to</code> 或 <code>\rightarrow</code></td>
+</tr>
+<tr>
+<td>左箭头</td>
+<td><code>\leftarrow</code></td>
+</tr>
+<tr>
+<td>双向箭头</td>
+<td><code>\leftrightarrow</code></td>
+</tr>
+<tr>
+<td>推导</td>
+<td><code>\Rightarrow</code></td>
+</tr>
+<tr>
+<td>等价</td>
+<td><code>\Leftrightarrow</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="9-求和、极限、积分与导数"><a href="#9-求和、极限、积分与导数" class="headerlink" title="9. 求和、极限、积分与导数"></a>9. 求和、极限、积分与导数</h2><div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\sum<span class="emphasis">_{i=1}^{n}i</span></span><br><span class="line"><span class="emphasis">$$</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">$$</span></span><br><span class="line"><span class="emphasis">\prod_</span>{i=1}^{n}i</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line">$$</span><br><span class="line">\lim<span class="emphasis">_{x\to 0}\frac{\sin x}{x}=1</span></span><br><span class="line"><span class="emphasis">$$</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">$$</span></span><br><span class="line"><span class="emphasis">\int_</span>a^b f(x)\,dx</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line">$$</span><br><span class="line">f'(x)=\frac{df}{dx}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="10-向量"><a href="#10-向量" class="headerlink" title="10. 向量"></a>10. 向量</h2><table>
+<thead>
+<tr>
+<th>内容</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>带箭头向量</td>
+<td><code>\vec{v}</code></td>
+</tr>
+<tr>
+<td>粗体向量</td>
+<td><code>\mathbf{v}</code></td>
+</tr>
+<tr>
+<td>单位向量</td>
+<td><code>\hat{v}</code></td>
+</tr>
+</tbody></table>
+<p>向量长度：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\left\lVert\vec{v}\right\rVert=\sqrt{x^2+y^2}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>单位向量：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\hat{v}=\frac{\vec{v}}{\left\lVert\vec{v}\right\rVert}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>点积：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\vec{a}\cdot\vec{b}</span><br><span class="line">=\left\lVert a\right\rVert</span><br><span class="line">\left\lVert b\right\rVert\cos\theta</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="11-多行公式与对齐"><a href="#11-多行公式与对齐" class="headerlink" title="11. 多行公式与对齐"></a>11. 多行公式与对齐</h2><p>使用 <code>aligned</code>：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\begin{aligned}</span><br><span class="line">v<span class="emphasis">_x &amp;= d_</span>x\times speed \\</span><br><span class="line">v<span class="emphasis">_y &amp;= d_</span>y\times speed</span><br><span class="line">\end{aligned}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><code>&amp;</code> 表示对齐位置。</li>
+<li><code>\\</code> 表示换行。</li>
+</ul>
+<p>推导示例：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\begin{aligned}</span><br><span class="line">(a+b)^2</span><br><span class="line">  &amp;= (a+b)(a+b) \\</span><br><span class="line">  &amp;= a^2+2ab+b^2</span><br><span class="line">\end{aligned}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="12-分段函数"><a href="#12-分段函数" class="headerlink" title="12. 分段函数"></a>12. 分段函数</h2><div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">speed=</span><br><span class="line">\begin{cases}</span><br><span class="line">normalSpeed, &amp; \text{巡逻状态} \\</span><br><span class="line">chaseSpeed, &amp; \text{追击状态} \\</span><br><span class="line">0, &amp; \text{等待状态}</span><br><span class="line">\end{cases}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><code>&amp;</code> 分隔公式与说明。</li>
+<li><code>\\</code> 用于换行。</li>
+<li><code>\text{}</code> 用于显示普通文字。</li>
+</ul>
+<hr>
+<h2 id="13-矩阵"><a href="#13-矩阵" class="headerlink" title="13. 矩阵"></a>13. 矩阵</h2><p>无括号矩阵：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\begin{matrix}</span><br><span class="line">a &amp; b \\</span><br><span class="line">c &amp; d</span><br><span class="line">\end{matrix}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>圆括号矩阵：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\begin{pmatrix}</span><br><span class="line">a &amp; b \\</span><br><span class="line">c &amp; d</span><br><span class="line">\end{pmatrix}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>方括号矩阵：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\begin{bmatrix}</span><br><span class="line">a &amp; b \\</span><br><span class="line">c &amp; d</span><br><span class="line">\end{bmatrix}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>行列式：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\begin{vmatrix}</span><br><span class="line">a &amp; b \\</span><br><span class="line">c &amp; d</span><br><span class="line">\end{vmatrix}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>矩阵中 <code>&amp;</code> 分隔列，<code>\\</code> 分隔行。</p>
+<hr>
+<h2 id="14-普通文字与空格"><a href="#14-普通文字与空格" class="headerlink" title="14. 普通文字与空格"></a>14. 普通文字与空格</h2><p>公式中的普通文字使用 <code>\text{}</code>：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">x=0\quad\text{等待结束}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>空间大小</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>\,</code></td>
+<td>小空格</td>
+</tr>
+<tr>
+<td><code>\:</code></td>
+<td>中等空格</td>
+</tr>
+<tr>
+<td><code>\;</code></td>
+<td>较大空格</td>
+</tr>
+<tr>
+<td><code>\quad</code></td>
+<td>一个宽空格</td>
+</tr>
+<tr>
+<td><code>\qquad</code></td>
+<td>两个宽空格</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="15-修饰符号"><a href="#15-修饰符号" class="headerlink" title="15. 修饰符号"></a>15. 修饰符号</h2><table>
+<thead>
+<tr>
+<th>效果</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>帽子</td>
+<td><code>\hat{x}</code></td>
+</tr>
+<tr>
+<td>横线</td>
+<td><code>\bar{x}</code></td>
+</tr>
+<tr>
+<td>长横线</td>
+<td><code>\overline{AB}</code></td>
+</tr>
+<tr>
+<td>下划线</td>
+<td><code>\underline{x}</code></td>
+</tr>
+<tr>
+<td>波浪线</td>
+<td><code>\tilde{x}</code></td>
+</tr>
+<tr>
+<td>点、双点</td>
+<td><code>\dot{x}</code>、<code>\ddot{x}</code></td>
+</tr>
+<tr>
+<td>上方箭头</td>
+<td><code>\vec{x}</code></td>
+</tr>
+<tr>
+<td>上方大括号</td>
+<td><code>\overbrace{a+b}^{说明}</code></td>
+</tr>
+<tr>
+<td>下方大括号</td>
+<td><code>\underbrace{a+b}_{说明}</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="16-颜色与方框"><a href="#16-颜色与方框" class="headerlink" title="16. 颜色与方框"></a>16. 颜色与方框</h2><div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\color{red}{x+y}</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line">$$</span><br><span class="line">\color{#42b983}{v=\frac{s}{t}}</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line">$$</span><br><span class="line">\boxed{E=mc^2}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="17-特殊字符转义"><a href="#17-特殊字符转义" class="headerlink" title="17. 特殊字符转义"></a>17. 特殊字符转义</h2><table>
+<thead>
+<tr>
+<th>想显示的字符</th>
+<th>写法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>%</code></td>
+<td><code>\%</code></td>
+</tr>
+<tr>
+<td><code>_</code></td>
+<td><code>\_</code></td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td><code>\#</code></td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td><code>\&amp;</code></td>
+</tr>
+<tr>
+<td><code>{</code></td>
+<td><code>\{</code></td>
+</tr>
+<tr>
+<td><code>}</code></td>
+<td><code>\}</code></td>
+</tr>
+</tbody></table>
+<p>例如：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$100\%$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="18-游戏开发公式示例"><a href="#18-游戏开发公式示例" class="headerlink" title="18. 游戏开发公式示例"></a>18. 游戏开发公式示例</h2><p>速度：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">v=\frac{s}{t}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>位移更新：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\vec{p}<span class="emphasis">_{next}=\vec{p}_</span>{current}+\vec{v}\Delta t</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>倒计时：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">T<span class="emphasis">_{next}=T_</span>{current}-\Delta t</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>两点距离：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">d=\sqrt{(x<span class="emphasis">_2-x_</span>1)^2+(y<span class="emphasis">_2-y_</span>1)^2}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>二维方向归一化：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\vec{d}=</span><br><span class="line">\frac{\vec{p}<span class="emphasis">_{target}-\vec{p}_</span>{current}}</span><br><span class="line">{\left\lVert\vec{p}<span class="emphasis">_{target}-\vec{p}_</span>{current}\right\rVert}</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>攻击范围判断：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">\left|x<span class="emphasis">_{target}-x_</span>{enemy}\right|\le AttackRange</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>线性插值：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">Lerp(a,b,t)=a+(b-a)t</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<hr>
+<h2 id="19-常见错误"><a href="#19-常见错误" class="headerlink" title="19. 常见错误"></a>19. 常见错误</h2><h3 id="19-1-花括号没有闭合"><a href="#19-1-花括号没有闭合" class="headerlink" title="19.1 花括号没有闭合"></a>19.1 花括号没有闭合</h3><div class="code-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">错误：\frac{a}{b</span><br><span class="line">正确：\frac{a}{b}</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="19-2-命令缺少反斜杠"><a href="#19-2-命令缺少反斜杠" class="headerlink" title="19.2 命令缺少反斜杠"></a>19.2 命令缺少反斜杠</h3><div class="code-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">错误：frac{a}{b}</span><br><span class="line">正确：\frac{a}{b}</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="19-3-多字符上下标没有花括号"><a href="#19-3-多字符上下标没有花括号" class="headerlink" title="19.3 多字符上下标没有花括号"></a>19.3 多字符上下标没有花括号</h3><div class="code-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x_10      只有 1 会成为下标</span><br><span class="line">x_{10}    10 都会成为下标</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="19-4-多行公式没有正确换行"><a href="#19-4-多行公式没有正确换行" class="headerlink" title="19.4 多行公式没有正确换行"></a>19.4 多行公式没有正确换行</h3><p>在 <code>aligned</code>、<code>cases</code> 或矩阵中使用 <code>\\</code> 换行。</p>
+<h3 id="19-5-使用了-KaTeX-不支持的命令"><a href="#19-5-使用了-KaTeX-不支持的命令" class="headerlink" title="19.5 使用了 KaTeX 不支持的命令"></a>19.5 使用了 KaTeX 不支持的命令</h3><p>KaTeX 支持大量常用 LaTeX 命令，但不等于完整的 LaTeX。如果语法看起来正确却无法渲染，应检查该命令是否在 KaTeX 支持列表中。</p>
+<p>排错时可以先测试：</p>
+<div class="code-container" data-rel="Markdown"><figure class="iseeu highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$$</span><br><span class="line">a+b=c</span><br><span class="line">$$</span><br></pre></td></tr></table></figure></div>
+
+<p>确认能够显示后，再逐步增加内容。</p>
+<hr>
+<h2 id="20-常用语法速查"><a href="#20-常用语法速查" class="headerlink" title="20. 常用语法速查"></a>20. 常用语法速查</h2><div class="code-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">行内公式        $...$</span><br><span class="line">独立公式        $$...$$</span><br><span class="line">上标            x^2</span><br><span class="line">下标            x_1</span><br><span class="line">多字符上下标    x^{10}、x_{10}</span><br><span class="line">分数            \frac{a}{b}</span><br><span class="line">平方根          \sqrt{x}</span><br><span class="line">n 次方根        \sqrt[n]{x}</span><br><span class="line">绝对值          \left|x\right|</span><br><span class="line">向量            \vec{v}</span><br><span class="line">单位向量        \hat{v}</span><br><span class="line">求和            \sum_{i=1}^{n}</span><br><span class="line">连乘            \prod_{i=1}^{n}</span><br><span class="line">积分            \int_a^b f(x)\,dx</span><br><span class="line">极限            \lim_{x\to 0}</span><br><span class="line">无穷            \infty</span><br><span class="line">乘号            \times</span><br><span class="line">小于等于        \le</span><br><span class="line">大于等于        \ge</span><br><span class="line">不等于          \ne</span><br><span class="line">约等于          \approx</span><br><span class="line">普通文字        \text{说明文字}</span><br><span class="line">多行对齐        \begin{aligned}...\end{aligned}</span><br><span class="line">分段函数        \begin{cases}...\end{cases}</span><br><span class="line">矩阵            \begin{bmatrix}...\end{bmatrix}</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="21-学习建议"><a href="#21-学习建议" class="headerlink" title="21. 学习建议"></a>21. 学习建议</h2><ol>
+<li>先掌握公式分隔符、上下标、分数和根号。</li>
+<li>再学习括号、向量、求和、积分和极限。</li>
+<li>复杂公式使用 <code>aligned</code>、<code>cases</code> 和矩阵环境。</li>
+<li>公式出错时，从最小表达式开始逐步添加内容。</li>
+<li>不确定某个命令时，查询 KaTeX 官方支持列表。</li>
+</ol>
+<h2 id="22-参考资料"><a href="#22-参考资料" class="headerlink" title="22. 参考资料"></a>22. 参考资料</h2><ul>
+<li><a class="link" target="_blank" rel="noopener" href="https://katex.org/docs/supported">KaTeX 支持的函数<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
+<li><a class="link" target="_blank" rel="noopener" href="https://katex.org/docs/support_table">KaTeX 函数支持表<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
+<li><a class="link" target="_blank" rel="noopener" href="https://katex.org/docs/autorender">KaTeX 自动渲染说明<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
+</ul>
+
+		</div>
+
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Blog/">#Blog</a>&nbsp;
+			</li>
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/HEXO/">#HEXO</a>&nbsp;
+			</li>
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Bash/">#Bash</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2026/08/16/mermaid/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Mermaid 使用指南</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2026/08/16/VS%20Code%20+%20Hexo%20%E5%8D%9A%E5%AE%A2%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">VS Code + Hexo 博客写作与自动发布流程</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">KaTeX 数学公式使用指南</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-KaTeX-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">1. KaTeX 是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%A1%8C%E5%86%85%E5%85%AC%E5%BC%8F%E4%B8%8E%E7%8B%AC%E7%AB%8B%E5%85%AC%E5%BC%8F"><span class="nav-text">2. 行内公式与独立公式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E8%A1%8C%E5%86%85%E5%85%AC%E5%BC%8F"><span class="nav-text">2.1 行内公式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E7%8B%AC%E7%AB%8B%E5%85%AC%E5%BC%8F"><span class="nav-text">2.2 独立公式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%9F%BA%E7%A1%80%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-text">3. 基础运算符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%B8%8A%E6%A0%87%E4%B8%8E%E4%B8%8B%E6%A0%87"><span class="nav-text">4. 上标与下标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%88%86%E6%95%B0%E4%B8%8E%E6%A0%B9%E5%8F%B7"><span class="nav-text">5. 分数与根号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%8B%AC%E5%8F%B7%E4%B8%8E%E7%BB%9D%E5%AF%B9%E5%80%BC"><span class="nav-text">6. 括号与绝对值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%B8%8C%E8%85%8A%E5%AD%97%E6%AF%8D"><span class="nav-text">7. 希腊字母</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E9%9B%86%E5%90%88%E4%B8%8E%E7%AE%AD%E5%A4%B4"><span class="nav-text">8. 集合与箭头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E9%9B%86%E5%90%88%E7%AC%A6%E5%8F%B7"><span class="nav-text">8.1 集合符号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E7%AE%AD%E5%A4%B4"><span class="nav-text">8.2 箭头</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%B1%82%E5%92%8C%E3%80%81%E6%9E%81%E9%99%90%E3%80%81%E7%A7%AF%E5%88%86%E4%B8%8E%E5%AF%BC%E6%95%B0"><span class="nav-text">9. 求和、极限、积分与导数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E5%90%91%E9%87%8F"><span class="nav-text">10. 向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E5%A4%9A%E8%A1%8C%E5%85%AC%E5%BC%8F%E4%B8%8E%E5%AF%B9%E9%BD%90"><span class="nav-text">11. 多行公式与对齐</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-%E5%88%86%E6%AE%B5%E5%87%BD%E6%95%B0"><span class="nav-text">12. 分段函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-%E7%9F%A9%E9%98%B5"><span class="nav-text">13. 矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-%E6%99%AE%E9%80%9A%E6%96%87%E5%AD%97%E4%B8%8E%E7%A9%BA%E6%A0%BC"><span class="nav-text">14. 普通文字与空格</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-%E4%BF%AE%E9%A5%B0%E7%AC%A6%E5%8F%B7"><span class="nav-text">15. 修饰符号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-%E9%A2%9C%E8%89%B2%E4%B8%8E%E6%96%B9%E6%A1%86"><span class="nav-text">16. 颜色与方框</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6%E8%BD%AC%E4%B9%89"><span class="nav-text">17. 特殊字符转义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#18-%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E5%85%AC%E5%BC%8F%E7%A4%BA%E4%BE%8B"><span class="nav-text">18. 游戏开发公式示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#19-%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF"><span class="nav-text">19. 常见错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#19-1-%E8%8A%B1%E6%8B%AC%E5%8F%B7%E6%B2%A1%E6%9C%89%E9%97%AD%E5%90%88"><span class="nav-text">19.1 花括号没有闭合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-2-%E5%91%BD%E4%BB%A4%E7%BC%BA%E5%B0%91%E5%8F%8D%E6%96%9C%E6%9D%A0"><span class="nav-text">19.2 命令缺少反斜杠</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-3-%E5%A4%9A%E5%AD%97%E7%AC%A6%E4%B8%8A%E4%B8%8B%E6%A0%87%E6%B2%A1%E6%9C%89%E8%8A%B1%E6%8B%AC%E5%8F%B7"><span class="nav-text">19.3 多字符上下标没有花括号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-4-%E5%A4%9A%E8%A1%8C%E5%85%AC%E5%BC%8F%E6%B2%A1%E6%9C%89%E6%AD%A3%E7%A1%AE%E6%8D%A2%E8%A1%8C"><span class="nav-text">19.4 多行公式没有正确换行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-5-%E4%BD%BF%E7%94%A8%E4%BA%86-KaTeX-%E4%B8%8D%E6%94%AF%E6%8C%81%E7%9A%84%E5%91%BD%E4%BB%A4"><span class="nav-text">19.5 使用了 KaTeX 不支持的命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#20-%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E9%80%9F%E6%9F%A5"><span class="nav-text">20. 常用语法速查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#21-%E5%AD%A6%E4%B9%A0%E5%BB%BA%E8%AE%AE"><span class="nav-text">21. 学习建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-text">22. 参考资料</span></a></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2026&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">Blumenkranz09</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 3 篇文章
+                    </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.9.0</a></span>
+        </div>
+        
+        
+        
+        
+            
+                
+        
+                
+        
+                
+
+                    
+                        <div id="aplayer"></div>
+                    
+        
+                
+
+                    
+                        <script data-swup-reload-script src="/js/build/libs/APlayer.min.js"></script>
+                    
+        
+                
+
+                    
+                        <script data-swup-reload-script src="/js/blog-aplayer.js?v=20260816-2"></script>
+                    
+        
+                
+
+                    
+                        <script data-swup-reload-script src="/js/blog-weather-clock.js?v=20260816-9"></script>
+                    
+        
+                
+
+                    
+                        <script data-swup-reload-script src="/js/blog-email-copy.js?v=20260816-3"></script>
+                    
+        
+                
+
+                    
+                        <script data-swup-reload-script src="/js/blog-drag-mascot.js?v=20260816-10"></script>
+                    
+        
+                
+
+                    
+                        <script data-swup-reload-script src="/js/blog-hitokoto-card.js?v=20260816-4"></script>
+                    
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="fa-regular fa-arrow-up"></i>
+		</li>
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container" role="dialog" aria-modal="true" aria-label="图片查看器">
+	<button class="image-viewer-close" type="button" aria-label="关闭">
+		<i class="fa-solid fa-xmark"></i>
+	</button>
+	<button class="image-viewer-prev" type="button" aria-label="上一页">
+		<i class="fa-solid fa-chevron-left"></i>
+	</button>
+	<div class="image-viewer-frame">
+		<img src="" alt="">
+	</div>
+	<div class="image-viewer-exif-panel hidden absolute left-1/2 bottom-20 -translate-x-1/2 w-[min(92vw,420px)] max-h-[60vh] overflow-hidden rounded-2xl bg-background-color-transparent-80 p-4 text-left shadow-redefine-flat backdrop-blur-md" role="dialog" aria-label="EXIF" aria-hidden="true">
+		<div class="flex items-center justify-between mb-3">
+			<span class="text-sm font-semibold text-first-text-color">EXIF</span>
+			<button class="image-viewer-exif-close flex h-8 w-8 items-center justify-center rounded-full bg-background-color-transparent-80 text-first-text-color transition hover:bg-background-color-transparent-40" type="button" aria-label="关闭">
+				<i class="fa-solid fa-xmark text-[0.65rem]"></i>
+			</button>
+		</div>
+		<div class="image-viewer-exif-cards grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pr-1 scrollbar-hide"></div>
+		<template class="image-viewer-exif-card-template">
+			<div class="rounded-lg bg-background-color-transparent-40 px-3 py-2">
+				<div class="image-viewer-exif-card-header flex items-center gap-2 mb-1">
+					<i class="image-viewer-exif-card-icon fa-solid fa-circle-info text-xs text-third-text-color"></i>
+					<div class="image-viewer-exif-card-title text-xs font-semibold text-first-text-color"></div>
+				</div>
+				<div class="image-viewer-exif-card-items flex flex-col gap-1"></div>
+			</div>
+		</template>
+	</div>
+	<button class="image-viewer-exif-toggle flex items-center gap-2 hidden absolute left-1/2 bottom-6 -translate-x-1/2 rounded-full border border-border-color bg-background-color-transparent-80 px-4 py-2 text-first-text-color backdrop-blur-md transition hover:bg-background-color-transparent-40" type="button" aria-label="EXIF" aria-expanded="false">
+		<i class="fa-solid fa-circle-info text-xs"></i>
+		<span class="text-xs font-semibold uppercase tracking-wider">EXIF</span>
+	</button>
+	<button class="image-viewer-next" type="button" aria-label="下一页">
+		<i class="fa-solid fa-chevron-right"></i>
+	</button>
+</div>
+
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    window.swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+    });
+
+    window.dispatchEvent(
+        new CustomEvent("redefine:swup:ready", {
+            detail: {
+                swup: window.swup,
+            },
+        }),
+    );
+</script>
+
+
+
+
+	
+<script src="/js/build/main.js" type="module"></script>
+
+
+
+
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+
+
+
+    
+        
+<script src="/js/build/libs/mermaid.min.js"></script>
+
+    
+
+
+
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+
+	
+</body>
+
+</html>
