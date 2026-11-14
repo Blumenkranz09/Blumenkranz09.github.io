@@ -269,6 +269,14 @@ redefine-tablet()
 .markdown-body .tab-pane > table:not(.not-markdown) tr:nth-child(2n) {
   background-color: var(--second-background-color);
 }
+@media (max-width: 640px) {
+  .markdown-body > table:not(.not-markdown),
+  .markdown-body .tab-pane > table:not(.not-markdown) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
 .markdown-body mjx-container:not(.not-markdown) {
   display: inline;
   overflow-x: auto;
